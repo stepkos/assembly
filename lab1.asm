@@ -3,6 +3,8 @@
 	licz1:       			.word 		0
 	licz2:       			.word 		0
 	wyn:         			.word 		0
+	status:					.word		0 	# 0 - bez bledu, 1 - jest blad
+	napisz_status:			.asciiz		"\n Status (0 - brak bledu, 1 - blad): "
   	napis_podaj_mnozna:  	.asciiz 	"Podaj mnozna: "
     napis_podaj_mnoznik: 	.asciiz 	"Podaj mnoznik: "
     napis_wynik:     		.asciiz 	"Wynik jest rowny "
@@ -75,15 +77,28 @@
     li $v0, 1		# ustawiamy tryb wypisywania
     lw $a0, wyn		# wypisujemy liczbe uzytkownika
     syscall			# wywolanie systemowe
-    j koniec		# przeskakujemy do etykiety by zakonczyc program
+    j koniec		# przeskakujemy do etykiety by zakonczyc program         
              
 	# sekcja wypisujaca ze liczba jest za duza
 	za_duza:
+	li $t7, 1 
+	sw $t7, status
 	li $v0, 4 				# ustawiamy tryb wypisywania
 	la $a0, napis_za_duze	# wypisujemy wiadomosc do uzytkownika
 	syscall 				# wywolanie systemowe
 	
 	koniec:
+	
+	# zlamianie lini i wypisanie etykiety
+	li $v0, 4 				# ustawiamy tryb wypisywania
+	la $a0, napisz_status	# wypisujemy znak konca lini i etykiete
+	syscall 
+	
+	# wypisanie statusu
+    li $v0, 1		# ustawienie bitu na wypisani§e liczby
+    lw $a0, status	# podanie argumentu by wypisac status 0 - bez bledu, 1 - blad
+    syscall			# wywolanie systemowe
+    
 	li $v0, 10	# nalezycie konczymy program
-	syscall
+	syscall		# wywolanie systemowe
 	
