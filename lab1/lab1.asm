@@ -54,7 +54,7 @@
      	# sprawdzamy czy jak dodamy to nie bedzie wieksza nic 32 bity
      	srl $t5, $t0, 1 	# dzielimy liczbe na 2 by sprawdzic czy nie bedzie za duza po dodaniu
      	srl $t6, $t2, 1 	# dzielimy liczbe na 2 by sprawdzic czy nie bedzie za duza po dodaniu
-     	add $t5, $t5, $t6 	# dodajemy pomniejszone wersje liczby
+     	addu $t5, $t5, $t6 	# dodajemy pomniejszone wersje liczby
      	bgt $t5, 536870911, za_duza	# jesli jest za duza to przeskakujemy by wypisac blad
      	
      	add $t2, $t2, $t0	# dodaj mnozna do wyniku
@@ -81,24 +81,24 @@
              
 	# sekcja wypisujaca ze liczba jest za duza
 	za_duza:
-	li $t7, 1 
-	sw $t7, status
-	li $v0, 4 				# ustawiamy tryb wypisywania
-	la $a0, napis_za_duze	# wypisujemy wiadomosc do uzytkownika
-	syscall 				# wywolanie systemowe
+		li $t7, 1 
+		sw $t7, status
+		li $v0, 4 				# ustawiamy tryb wypisywania
+		la $a0, napis_za_duze	# wypisujemy wiadomosc do uzytkownika
+		syscall 				# wywolanie systemowe
 	
 	koniec:
 	
-	# zlamianie lini i wypisanie etykiety
-	li $v0, 4 				# ustawiamy tryb wypisywania
-	la $a0, napisz_status	# wypisujemy znak konca lini i etykiete
-	syscall 
+		# zlamianie lini i wypisanie etykiety
+		li $v0, 4 				# ustawiamy tryb wypisywania
+		la $a0, napisz_status	# wypisujemy znak konca lini i etykiete
+		syscall 
 	
-	# wypisanie statusu
-    li $v0, 1		# ustawienie bitu na wypisani§e liczby
-    lw $a0, status	# podanie argumentu by wypisac status 0 - bez bledu, 1 - blad
-    syscall			# wywolanie systemowe
+		# wypisanie statusu
+    	li $v0, 1		# ustawienie bitu na wypisani§e liczby
+    	lw $a0, status	# podanie argumentu by wypisac status 0 - bez bledu, 1 - blad
+    	syscall			# wywolanie systemowe
     
-	li $v0, 10	# nalezycie konczymy program
-	syscall		# wywolanie systemowe
+		li $v0, 10	# nalezycie konczymy program
+		syscall		# wywolanie systemowe
 	
