@@ -21,38 +21,53 @@
 
 main:
 	# Rezerwujemy miejsce na stosie
-    sub $sp, $sp, 4             # utworzenie na stosie zmiennej s - int s;
-    sub $sp, $sp, 8             # rezerwacja miejsca na stosie na pierwszy argument funkcji "global_array"
-    sub $sp, $sp, 8             # rezerwacja miejsca na stosie na drugi argument funkcji "10"
+    sub $sp, $sp, 4             # utworzenie na stosie zmiennej "s"
+    sub $sp, $sp, 4             # rezerwacja miejsca na stosie na pierwszy argument funkcji "global_array"
+    sub $sp, $sp, 4             # rezerwacja miejsca na stosie na drugi argument funkcji "10"
+    
+    # Legenda stosu wzglednem obecnego stack pointera
+    # 0($sp) = drugi argument funkcji "10"
+    # 4($sp) = pierwszy argument funkcji "global_array"
+    # 8($sp) = zmienna "s"
+    # 12($sp) = wartosc zwracana przez funkcje
     
     # Wczytujemy wartosci napierw do rejestru poznij na umieszczamy na stosie 
+    
+    # umieszczamy na stosie pierwszy argument fukncji - "global_array"
     la $t0, global_array        
-    sw $t0, 4($sp)              # umieszczamy na stosie pierwszy argument fukncji "global_array"		       
+    sw $t0, 4($sp)              		       
+    
+    # umieszczamy na stosie drugi argument funkcji - "10"
     lw $t0, global_array_size	
-    sw $t0, 0($sp)              # umieszczamy na stosie drugi argument funkcji "10"
+    sw $t0, 0($sp)              
      		        
-    jal sum				        # "uruchamiamy" podprogram, ktorym jest funkcja sum
+    # uruchamiamy podprogram, ktorym jest funkcja sum 		        
+    jal sum				        
 	
-    lw $t0, ($sp)		        # pobieramy ze stosu wartosc ktora zwrocila funkcja
-    sw $t1, 12($sp)		        # zapisujemy "s" do stosu
-    add $sp, $sp, 12	        # usuniecie zwroconej wartosci i argumentow ze stosu
+    lw $t0, ($sp)		        # pobieramy ze stosu wartosc ktora zwrocila funkcja sum
+    sw $t0, 12($sp)		        # zapisujemy "s" do stosu
+    add $sp, $sp, 4	            # inkrementujemy wskaznik stosu tak by "usunac" wartosc zwracana
+    add $sp, $sp, 4	            # inkrementujemy wskaznik stosu tak by "usunac" argument drugi
+    add $sp, $sp, 4	            # inkrementujemy wskaznik stosu tak by "usunac" argument pierwszy
     
     # wypisanie wartosci
     li $v0, 1		        
     lw $a0, ($sp)                
     syscall
     
-    add $sp, $sp, 4		        # usuwamy zmienna lokalna ze stosu
+    add $sp, $sp, 4		        # inkrementujemy wskaznik stosu tak by "usunac" zmienna "s"
 
     # koniec podprogramu main
-    lw $sp, sys_stack_addr          # odtworzenie wskaznika stosu systemowego
+    lw $sp, sys_stack_addr      # odtworzenie wskaznika stosu systemowego
     li $v0, 10
     syscall
 
 sum:
-    sub $sp, $sp, 8 	# rezerawacja miejsca na stosie na wartosc zwracana i adres powrotu
+    sub $sp, $sp, 4 	# rezerawacja miejsca na stosie na wartosc zwracana
+    sub $sp, $sp, 4 	# rezerawacja miejsca na stosie na adres powrotu
     sw $ra, ($sp) 		# zapisujemy adres powrotu na stos
-    sub $sp, $sp, 8		# rezerwacja miejsca na stosie na zmienne lokalne "s" oraz "i"
+    sub $sp, $sp, 4		# rezerwacja miejsca na stosie na zmienna "s"
+    sub $sp, $sp, 4		# rezerwacja miejsca na stosie na zmienna "i"
     sw $0, ($sp)        # zapisujemy wartosc s jako 0
     lw $t0, 16($sp)		# pobieramy rozmiar tablicy (argument drugi)
     subi $t0, $t0, 1	# zmiejszamy rozmiar tablicy o 1 tak by uzyskac i = array_size - 1;
@@ -64,9 +79,8 @@ sum:
     # 8($sp) = $ra
     # 12($sp) = wartosc zwracana
     # 16($sp) = argument drugi - rozmiar tablicy "10"
-    # 12($sp) = argument pierwszy - adres tablicy
+    # 20($sp) = argument pierwszy - adres tablicy
     
-   
     loop:
         lw $t0, 4($sp)          # wczytujemy zamienn i
         blt $t0, $0, endloop 	# jesli i < 0 to konczymy petle
@@ -92,7 +106,8 @@ sum:
     endloop:
     lw $t0, ($sp)		# wczytujemy wartosc "s" do rejestru $t0
     sw $t0, 12($sp)		# zapisujemy ja jako wartosc ktora zwraca funkcja
-    add $sp, $sp, 8		# inkrementujemy wskaznik stosu tak by "usunac" lokalne zmienne
-    lw $ra, ($sp)		# wczytujemy adres powrotu
-    add $sp, $sp, 4		# usuwamy ze stosu na adres powrotu
+    lw $ra, 8($sp)		# wczytujemy adres powrotu
+    add $sp, $sp, 4		# inkrementujemy wskaznik stosu tak by "usunac" zmienna "s"
+    add $sp, $sp, 4		# inkrementujemy wskaznik stosu tak by "usunac" zmienna "i"
+    add $sp, $sp, 4		# inkrementujemy wskaznik stosu tak by "usunac" zmienna "$ra"
     jr $ra			    # wyjscie z funkcji
