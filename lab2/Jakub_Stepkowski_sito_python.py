@@ -1,18 +1,21 @@
 N = 100
 nprimes = 0
+primes = []
 
-primes = [True for _ in range(N + 1)]
-primes[0] = False
-primes[1] = False
+numall = [True for _ in range(N + 1)]
+numall[0] = False
+numall[1] = False
 
-for i in range(2, len(primes)):
-    if primes[i]:
-        for j in range(i ** 2, len(primes), i):
-            primes[j] = False
+for i in range(2, len(numall)):
+    if numall[i]:
+        for j in range(i ** 2, len(numall), i):
+            numall[j] = False
 
-for number, isPrime in enumerate(primes):
+for number, isPrime in enumerate(numall):
     if isPrime:
         nprimes += 1
-        print(number)
+        primes.append(number)
 
-print('Liczb pierwszych:', nprimes)
+for prime in primes:
+    print(prime)
+    

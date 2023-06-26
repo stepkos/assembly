@@ -1,6 +1,6 @@
 .data
-    coefs:        .float   3.2, 2.1, -5, 2.4
-    degree:       .word    3
+    coefs:        .float   6.7, 5, 4, 3
+    degree:       .word    0
     msg:          .asciiz  "Podaj liczbe x: "
     msg_new_line: .asciiz  "\n"
     
@@ -56,7 +56,6 @@ eval_poly:
     # f6 - x
     
     # for (int i=degree-1; i >= 0; i--)
-    
     
     loop:
        blt $t1, $zero, endloop # warunek wyjsca z petli

@@ -1,6 +1,8 @@
 .data
-	n: .word 40					# ilosc elementow w tablicy
-	primes: .space 400			# deklaracja tablicy roboczona na wszelki wypadek wieksza
+	n: .word 40					# zakres w ktorym szukamy
+	numall: .space 400			# deklaracja tablicy na wykreslanie
+	primes: .space 100			# deklaracja tablicy samych liczb pierwszych 
+	nprimes: .word 0			# ilosc liczb pierwszych w przedziale
 	space_msg: .asciiz ", "		# zmienna z napisem
 	
 .text
@@ -30,7 +32,6 @@ loop:
 	j loop			# powrot do poczatku petli
 	
 endloop:
-
 
 jal set_loop_registers	# ustawienie rejestrow dla petli
 
@@ -77,34 +78,40 @@ loop2:
 		j loop2		
 	
 endloop2:
-	j end
-		
 	
-# ustawianie rejestrow odpowiedzialnych za iteracje petli
-set_loop_registers:
-	li $t1, 0		# wyzerowanie iteratorsa
-	la $s0, primes	# ustawienie wskaznika na pierwszy element
-	jr $ra			# powrot do kolejnej instrukcji
+jal set_loop_registers # zerowanie wspolczynnikow petli
 
-increment:
-	addi $s0, $s0, 4 # inkrementacja wskaznika
-	addi $t1, $t1, 1 # inkrementacja warunku petli
-	jr $ra			 # powrot
-
-end:
-	
-	jal set_loop_registers # zerowanie wspolczynnikow petli
+la $t2, primes # wczytujemy adres primes to $t2
+li $t4, 0 # ustanawiamy $t4 licznikiem liczb pierwszych
 
 loop4:
 	bge $t1, $t0, endloop4	# warunek wyjscia z petli
 	
-	
 	lw $t3, 0($s0) # pomocniczo ladujemy do rejestru by porownac
 	beq $t3, $zero, skip2 # wypsiz liczbe jesli 1
 	
+	# zapis do primes
+	sw $t1, 0($t2) 
+	add $t2, $t2, 4
+	addi $t4, $t4, 1
+	
+	skip2:
+		jal increment	# inkrementacja zmiennnych petli za pomoca procedury
+		j loop4
+	
+endloop4:
+sw $t4, nprimes
+
+# petla wypisujaca primes
+la $t2, primes # wczytujemy adres primes to $t2
+li $t5, 0 # ustanawiamy $t4 licznikiem
+loop5:
+	beq $t5, $t4, endloop5
+	
 	# wypisywanie liczny
 	li $v0, 1
-	move $a0, $t1
+	lw $t6, 0($t2)
+	move $a0, $t6
 	syscall
 	
 	# wypisywanie spacji i przecinka
@@ -112,13 +119,24 @@ loop4:
 	la $a0, space_msg
 	syscall
 	
-	skip2:
-		jal increment	# inkrementacja zmiennnych petli za pomoca procedury
-		j loop4
+	# inkrementacja
+	add $t2, $t2, 4
+	add $t5, $t5, 1
+	j loop5
 	
-endloop4:
+endloop5:
+	
+# zakonczenie programu
+li $v0, 10
+syscall
 
-	# zakonczenie programu
-	li $v0, 10
-	syscall
+# ustawianie rejestrow odpowiedzialnych za iteracje petli
+set_loop_registers:
+	li $t1, 0		# wyzerowanie iteratorsa
+	la $s0, numall	# ustawienie wskaznika na pierwszy element
+	jr $ra			# powrot do kolejnej instrukcji
 
+increment:
+	addi $s0, $s0, 4 # inkrementacja wskaznika
+	addi $t1, $t1, 1 # inkrementacja warunku petli
+	jr $ra			 # powrot
